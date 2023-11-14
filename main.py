@@ -3,8 +3,7 @@ import os
 import boto3
 import telebot
 from matplotlib import image as img
-from matplotlib import pyplot as plt
-
+import output
 from model.palette_extractor import PaletteExtractor
 
 
@@ -38,9 +37,9 @@ def bot_runner():
         rals = palette_extractor.get_rals()
         print(rals)
 
-        plt.switch_backend('Agg')
-        plt.imshow([colors])
-        plt.savefig(file_name)
+        sorted_colors = sorted(colors, key=output.calculate_luminance, reverse=True)
+        output.generate_palette(sorted_colors, file_name)
+
         photo = open(file_name, 'rb')
         bot.send_photo(message.chat.id, photo)
 
