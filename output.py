@@ -40,6 +40,7 @@ def calculate_luminance(color):
     return 0.2126 * Rg + 0.7152 * Gg + 0.0722 * Bg
 def is_dark_color(color):
     luminance = calculate_luminance(color)
+
     # Consider colors with luminance below 0.5 as dark
     return luminance < 0.5
 
@@ -58,7 +59,7 @@ def generate_palette(rgb_list, file_name):
     spacing = 32
     num_colors = len(rgb_list)
     square_height = int((1920 - spacing*num_colors)/num_colors)
-    square_width = square_height
+    square_width = 1080 - 200
     palette_width = square_width + (1080 - square_width)
     palette_height = (square_height + spacing) * num_colors - spacing + 200  # Adding spacing
 
@@ -90,7 +91,7 @@ def generate_palette(rgb_list, file_name):
             ctx.set_source_rgb(0/255, 25/255, 51/255)
         font_path = "Montserrat-Medium.ttf"
         ctx.select_font_face(font_path, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
-        ctx.set_font_size(64 - num_colors*2)
+        ctx.set_font_size(64 - num_colors * 2)
         text_extents = ctx.text_extents(hex_code)
         text_width = text_extents.width
         text_height = text_extents.height
