@@ -1,0 +1,5 @@
+CREATE TABLE usersInfo (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    chat_id VARCHAR UNIQUE,
+    clusters INTEGER
+);
