@@ -1,16 +1,20 @@
 import os
 
+import numpy as np
 import telebot
 from matplotlib import image as img
+from PIL import Image
 
-import output
+# import output
 from db import db_app
 from model.palette_extractor import PaletteExtractor
+from model.image_transformer import ImageTransformer
 
 
 def bot_runner():
     token = os.getenv('TOKEN')
     bot = telebot.TeleBot(token)
+    saved_colors = [[29, 24, 20], [203, 191, 189], [121, 92, 75], [235, 190, 13], [106, 46, 16]]
 
     @bot.message_handler(commands=["start"])
     def start(message, res=False):
@@ -55,20 +59,20 @@ def bot_runner():
     def handle_text(message):
         bot.send_message(message.chat.id, "Такой команды я не знаю 😟")
 
-    @bot.message_handler(content_types=["photo"])
+    # @bot.message_handler(content_types=["photo"])
     def handle_photo(message):
         chat_id = str(message.chat.id)
-        connection = db_app.get_connection()
+        # connection = db_app.get_connection()
 
         try:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT clusters FROM usersInfo WHERE chat_id = %s;", (chat_id,))
-                record = cursor.fetchone()
-
-                if record is not None:
-                    val = record[0]  # Получение значения clusters
-                else:
-                    val = 5
+            # with connection.cursor() as cursor:
+            #     cursor.execute("SELECT clusters FROM usersInfo WHERE chat_id = %s;", (chat_id,))
+            #     record = cursor.fetchone()
+            #
+            #     if record is not None:
+            #         val = record[0]  # Получение значения clusters
+            #     else:
+                val = 5
                 file_info = bot.get_file(message.photo[1].file_id)
                 downloaded_file = bot.download_file(file_info.file_path)
                 file_name = str(message.chat.id) + '.jpg'
@@ -81,6 +85,8 @@ def bot_runner():
                 palette_extractor = PaletteExtractor(val)
                 palette_extractor.fit(image)
                 colors = palette_extractor.get_colors()
+                saved_colors = colors
+                print(colors)
                 hexes = palette_extractor.get_hexes()
                 print(hexes)
                 rals = palette_extractor.get_rals()
@@ -88,20 +94,40 @@ def bot_runner():
                 ncs = palette_extractor.get_ncs()
                 print(ncs)
 
-                sorted_colors = sorted(colors, key=output.calculate_luminance, reverse=True)
-                output.generate_palette(sorted_colors, file_name)
+                # sorted_colors = sorted(colors, key=output.calculate_luminance, reverse=True)
+                # output.generate_palette(sorted_colors, file_name)
 
                 photo = open(file_name, 'rb')
                 bot.send_photo(message.chat.id, photo)
-                bot.send_message(message.chat.id, output.generate_color_message("HEX", hexes),
-                                 parse_mode='MarkdownV2')
-                bot.send_message(message.chat.id, output.generate_color_message("RAL", rals),
-                                 parse_mode='MarkdownV2')
-                bot.send_message(message.chat.id, output.generate_color_message("NCS", ncs),
-                                 parse_mode='MarkdownV2')
+                # bot.send_message(message.chat.id, output.generate_color_message("HEX", hexes),
+                #                  parse_mode='MarkdownV2')
+                # bot.send_message(message.chat.id, output.generate_color_message("RAL", rals),
+                #                  parse_mode='MarkdownV2')
+                # bot.send_message(message.chat.id, output.generate_color_message("NCS", ncs),
+                #                  parse_mode='MarkdownV2')
         except Exception as e:
             print("Произошла ошибка: ", e)
-        finally:
-            db_app.release_connection(connection)
+        # finally:
+            # db_app.release_connection(connection)
+
+    @bot.message_handler(content_types=["photo"])
+    def transform_image(message):
+        file_info = bot.get_file(message.photo[1].file_id)
+
+        downloaded_file = bot.download_file(file_info.file_path)
+        file_name = str(message.chat.id) + '.jpg'
+
+        with open(file_name, 'wb') as new_file:
+            new_file.write(downloaded_file)
+
+        image = img.imread(file_name)
+        image = ImageTransformer(saved_colors).transform(image)
+
+        im = Image.fromarray(np.array(image, dtype=np.uint8))
+        im.save("t_" + file_name)
+
+        photo = open("t_" + file_name, 'rb')
+        bot.send_photo(message.chat.id, photo)
+
 
     bot.polling(none_stop=True, interval=0)
