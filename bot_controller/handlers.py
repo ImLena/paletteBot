@@ -23,8 +23,7 @@ def bot_runner():
         bot.send_message(message.chat.id,
                          "Чтобы получить палитру с основными цветами изображения отправьте в чат фотографию, бот вернет палитру\n"
                          "Доступные команды:\n"
-                         "/changeColorsNumber <number> - изменить количество цветов в палитре (по умолчанию - 5)\n"
-                         "/colorsInfo - информация о доступных цветовых кругах")
+                         "/changeColorsNumber <number> - изменить количество цветов в палитре (по умолчанию - 5)\n")
 
     @bot.message_handler(commands=["changeColorsNumber"])
     def handle_help(message):
