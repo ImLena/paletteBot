@@ -58,3 +58,20 @@ class PaletteExtractor:
                     best_ral_name = row["name"]
             rals.append((best_ral, best_ral_name))
         return rals
+
+    def get_ncs(self):
+        df = pd.read_csv("data/ncs_code.csv")
+        ncs = []
+        r_std, g_std, b_std = self.stds
+        for color in self.cluster_centers:
+            cluster_r, cluster_g, cluster_b = color
+            r, g, b = int(cluster_r * r_std), int(cluster_g * g_std), int(cluster_b * b_std)
+            min_dist = 1e9
+            best_ral = -1
+            for _, row in df.iterrows():
+                dist = np.sqrt((r - row["r"]) ** 2 + (g - row["g"]) ** 2 + (b - row["b"]) ** 2)
+                if dist < min_dist:
+                    min_dist = dist
+                    best_ral = row["id"]
+            ncs.append(best_ral)
+        return ncs
