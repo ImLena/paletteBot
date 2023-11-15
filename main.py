@@ -36,14 +36,23 @@ def bot_runner():
         print(hexes)
         rals = palette_extractor.get_rals()
         print(rals)
+        ncs = palette_extractor.get_ncs()
+        print(ncs)
 
         sorted_colors = sorted(colors, key=output.calculate_luminance, reverse=True)
         output.generate_palette(sorted_colors, file_name)
 
         photo = open(file_name, 'rb')
         bot.send_photo(message.chat.id, photo)
+        bot.send_message(message.chat.id, output.generate_color_message("HEX", hexes),
+                         parse_mode='MarkdownV2')
+        bot.send_message(message.chat.id, output.generate_color_message("RAL", rals),
+                         parse_mode='MarkdownV2')
+        bot.send_message(message.chat.id, output.generate_color_message("NCS", ncs),
+                         parse_mode='MarkdownV2')
 
     bot.polling(none_stop=True, interval=0)
+
 
 if __name__ == '__main__':
     bot_runner()
