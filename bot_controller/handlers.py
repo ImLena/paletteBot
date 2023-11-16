@@ -64,12 +64,12 @@ class Bot:
         @bot.message_handler(commands=["extractColors"])
         def handle_extract_colors(message):
             self.photo_event_type = "EXTRACT"
-            bot.send_message(message.chat.id, 'Введите изоборажение')
+            bot.send_message(message.chat.id, 'Отправьте изображение')
 
         @bot.message_handler(commands=["transformImage"])
         def handle_extract_colors(message):
             self.photo_event_type = "TRANSFORM"
-            bot.send_message(message.chat.id, 'Введите изоборажение')
+            bot.send_message(message.chat.id, 'Отправьте изображение')
 
         @bot.message_handler(content_types=["text"])
         def handle_text(message):
