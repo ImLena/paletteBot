@@ -1,7 +1,9 @@
 import cairo
 
+
 def rgb2hex(r, g, b):
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
 
 def generate_rounded_rectangle(ctx, x, y, width, height, corner_radius, color):
     parsed_color = [c / 255 for c in color]
@@ -32,17 +34,21 @@ def generate_rounded_rectangle(ctx, x, y, width, height, corner_radius, color):
     ctx.set_line_width(12)
     ctx.stroke()
 
+
 def calculate_luminance(color):
     R, G, B = color
     Rg = (R / 269 + 0.0513) ** 2.4 if R > 10 else R / 3294
     Gg = (G / 269 + 0.0513) ** 2.4 if G > 10 else G / 3294
     Bg = (B / 269 + 0.0513) ** 2.4 if B > 10 else B / 3294
     return 0.2126 * Rg + 0.7152 * Gg + 0.0722 * Bg
+
+
 def is_dark_color(color):
     luminance = calculate_luminance(color)
 
     # Consider colors with luminance below 0.5 as dark
     return luminance < 0.5
+
 
 def create_gradient(ctx, rgb_list, width, height):
     gradient = cairo.LinearGradient(0, 0, width, height)
@@ -55,10 +61,11 @@ def create_gradient(ctx, rgb_list, width, height):
     ctx.set_source(gradient)
     ctx.fill()
 
+
 def generate_palette(rgb_list, file_name):
     spacing = 32
     num_colors = len(rgb_list)
-    square_height = int((1920 - spacing*num_colors)/num_colors)
+    square_height = int((1920 - spacing * num_colors) / num_colors)
     if num_colors < 6:
         square_width = square_height
     else:
@@ -83,15 +90,15 @@ def generate_palette(rgb_list, file_name):
         y_offset += i * (square_height + spacing)
 
         # Draw the rounded rectangle
-        generate_rounded_rectangle(ctx, x_offset, y_offset, square_width, square_height, 100 - num_colors*2, color)
+        generate_rounded_rectangle(ctx, x_offset, y_offset, square_width, square_height, 100 - num_colors * 2, color)
 
         total_height += square_height + spacing
 
         hex_code = rgb2hex(*color)
         if is_dark_color(color):
-            ctx.set_source_rgb(224/255, 224/255, 224/255)
+            ctx.set_source_rgb(224 / 255, 224 / 255, 224 / 255)
         else:
-            ctx.set_source_rgb(0/255, 25/255, 51/255)
+            ctx.set_source_rgb(0 / 255, 25 / 255, 51 / 255)
         font_path = "Montserrat-Medium.ttf"
         ctx.select_font_face(font_path, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
         ctx.set_font_size(64 - num_colors * 2)
@@ -102,3 +109,13 @@ def generate_palette(rgb_list, file_name):
         ctx.show_text(hex_code)
 
     surface.write_to_png(file_name)
+
+
+def generate_color_message(title, colors):
+    s = title + ":\n\n"
+    for color in colors:
+        if isinstance(color, tuple):
+            s = s + "`" + str(color[0]) + "` " + "\(" + str(color[1]) + "\)" + "\n"
+        else:
+            s = s + "`" + str(color) + "`" + "\n"
+    return s
