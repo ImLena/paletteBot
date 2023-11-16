@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  postgres_palette_bot:
-    container_name: palette-bot
+  db:
+    container_name: db
     image: postgres:15
     ports:
       - "5432:5432"
@@ -10,3 +10,21 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: palette-bot
+    networks:
+      - palette
+
+  app:
+    container_name: palette-bot-app
+    image: palette-bot-app
+    build: .
+    ports:
+      - "5050:5050"
+    environment:
+      TOKEN: ''
+    depends_on:
+      - db
+    networks:
+      - palette
+
+networks:
+  palette:

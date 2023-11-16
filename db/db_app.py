@@ -1,6 +1,6 @@
 from psycopg2 import pool
 
-host = "localhost"
+host = "db"
 dbname = "palette-bot"
 user = "postgres"
 password = "postgres"
