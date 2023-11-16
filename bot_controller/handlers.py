@@ -106,7 +106,7 @@ class Bot:
                     palette_extractor = PaletteExtractor(val)
                     palette_extractor.fit(image)
                     colors = palette_extractor.get_colors()
-                    saved_colors = colors
+                    self.saved_colors = colors
                     print(colors)
                     hexes = palette_extractor.get_hexes()
                     print(hexes)
