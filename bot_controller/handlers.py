@@ -30,8 +30,9 @@ class Bot:
         @bot.message_handler(commands=["help"])
         def handle_help(message):
             bot.send_message(message.chat.id,
-                             "Чтобы получить палитру с основными цветами изображения отправьте в чат фотографию, бот вернет палитру\n"
                              "Доступные команды:\n"
+                             "/extractColors - получить палитру с основными цветами изображения\n"
+                             "/transformImage - редактировать изображение\n"
                              "/changeColorsNumber <number> - изменить количество цветов в палитре (по умолчанию - 5)\n")
 
         @bot.message_handler(commands=["changeColorsNumber"])
@@ -84,7 +85,6 @@ class Bot:
         def extract_colors(message):
             chat_id = str(message.chat.id)
             connection = db_app.get_connection()
-
             try:
                 with connection.cursor() as cursor:
                     cursor.execute("SELECT clusters FROM usersInfo WHERE chat_id = %s;", (chat_id,))
@@ -93,7 +93,7 @@ class Bot:
                     if record is not None:
                         val = record[0]  # Получение значения clusters
                     else:
-                    val = 5
+                        val = 5
                     file_info = bot.get_file(message.photo[1].file_id)
                     downloaded_file = bot.download_file(file_info.file_path)
                     file_name = str(message.chat.id) + '.jpg'
@@ -117,7 +117,8 @@ class Bot:
 
                     sorted_colors = sorted(colors, key=output.calculate_luminance, reverse=True)
                     output.generate_palette(sorted_colors, file_name)
-
+                    photo = open(file_name, 'rb')
+                    bot.send_photo(message.chat.id, photo)
                     bot.send_message(message.chat.id, output.generate_color_message("HEX", hexes),
                                      parse_mode='MarkdownV2')
                     bot.send_message(message.chat.id, output.generate_color_message("RAL", rals),
