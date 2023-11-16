@@ -1,4 +1,4 @@
-from bot_controller.handlers import bot_runner
+from bot_controller.handlers import Bot
 
 if __name__ == '__main__':
-    bot_runner()
+    Bot().bot_runner()
