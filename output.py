@@ -45,6 +45,7 @@ def calculate_luminance(color):
 
 def is_dark_color(color):
     luminance = calculate_luminance(color)
+
     # Consider colors with luminance below 0.5 as dark
     return luminance < 0.5
 
@@ -65,7 +66,10 @@ def generate_palette(rgb_list, file_name):
     spacing = 32
     num_colors = len(rgb_list)
     square_height = int((1920 - spacing * num_colors) / num_colors)
-    square_width = square_height
+    if num_colors < 6:
+        square_width = square_height
+    else:
+        square_width = 1080 - 200
     palette_width = square_width + (1080 - square_width)
     palette_height = (square_height + spacing) * num_colors - spacing + 200  # Adding spacing
 
